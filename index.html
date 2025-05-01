@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <title>Big Small Pattern Predictor</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background-color: #f2f2f2;
+    }
+
+    h2 {
+      color: #333;
+    }
+
+    label {
+      display: block;
+      margin-top: 10px;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+
+    textarea, input {
+      width: 100%;
+      padding: 8px;
+      font-size: 16px;
+      box-sizing: border-box;
+    }
+
+    button {
+      margin-top: 15px;
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    #result {
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: bold;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+  <h2>Big Small Pattern Predictor</h2>
+
+  <label>ऐतिहासिक डेटा दर्ज करें (उदाहरण: 0-5, 1-8, 2-9, ...):</label>
+  <textarea id="historicalData" rows="10" placeholder="0-5, 1-8, 2-9, ..."></textarea>
+
+  <label>सीरियल नंबर दर्ज करें (0 से 9 तक):</label>
+  <input type="number" id="serialNumber" min="0" max="9">
+
+  <label>वर्तमान परिणाम दर्ज करें (उदाहरण: 9):</label>
+  <input type="number" id="currentResult" min="0" max="9">
+
+  <button onclick="predict()">भविष्यवाणी करें</button>
+
+  <div id="result"></div>
+
+  <script>
+    function numberToBigSmall(num) {
+      return num <= 4 ? 'Small' : 'Big';
+    }
+
+    function predict() {
+      const historicalDataInput = document.getElementById("historicalData").value.trim();
+      const serialNumber = parseInt(document.getElementById("serialNumber").value);
+      const currentResult = parseInt(document.getElementById("currentResult").value);
+
+      if (!historicalDataInput || isNaN(serialNumber) || isNaN(currentResult)) {
+        alert("कृपया सभी इनपुट सही से भरें।");
+        return;
+      }
+
+      const historicalData = historicalDataInput
+        .split(',')
+        .map(entry => {
+          const [serial, result] = entry.trim().split('-').map(Number);
+          return { serial, result };
+        });
+
+      let nextResults = [];
+
+      for (let i = 0; i < historicalData.length - 1; i++) {
+        if (
+          historicalData[i].serial === serialNumber &&
+          historicalData[i].result === currentResult
+        ) {
+          const nextEntry = historicalData[i + 1];
+          if (nextEntry) {
+            nextResults.push(numberToBigSmall(nextEntry.result));
+          }
+        }
+      }
+
+      if (nextResults.length === 0) {
+        document.getElementById("result").innerText = "कोई भविष्यवाणी नहीं मिली।";
+        return;
+      }
+
+      const bigCount = nextResults.filter(r => r === 'Big').length;
+      const smallCount = nextResults.filter(r => r === 'Small').length;
+
+      const prediction = bigCount > smallCount ? 'Big' : 'Small';
+
+      document.getElementById("result").innerText = 
+        `भविष्यवाणी: ${prediction} (Big: ${bigCount}, Small: ${smallCount})`;
+    }
+  </script>
+</body>
+</html>
